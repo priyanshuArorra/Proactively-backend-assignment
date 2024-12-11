@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the User Dashboard!</h1>
+        <p id="userInfo"></p>
+        <button id="logoutBtn">Logout</button>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Your Profile</h2>
+            <p id="userDetails"></p>
+        </section>
+
+        <section>
+            <h2>Explore Features</h2>
+            <ul>
+                <li><a href="/feature1">Feature 1</a></li>
+                <li><a href="/feature2">Feature 2</a></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Available Speakers</h2>
+            <ul id="speakersList"></ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 ReachOut Platform</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                // Fetch user data from localStorage
+                const userInfo = localStorage.getItem('user');
+
+                if (userInfo) {
+                    // Parse user data and display it
+                    const user = JSON.parse(userInfo);
+                    document.getElementById('userInfo').innerText = `Hello, ${user.name}!`;
+                    document.getElementById('userDetails').innerText = `Email: ${user.email}`;
+                } else {
+                    // Redirect to login if no user data is found
+                    alert('You are not logged in!');
+                    window.location.href = '/login';
+                }
+
+                // Fetch available speakers data from server
+                const speakersResponse = await fetch('/api/speakers');
+                const speakersData = await speakersResponse.json();
+
+                if (speakersData.success && speakersData.data) {
+                    const speakersList = document.getElementById('speakersList');
+                    speakersData.data.forEach(speaker => {
+                        const speakerItem = document.createElement('li');
+                        speakerItem.innerHTML = `
+                            <p><strong>Name:</strong> ${speaker.name}</p>
+                            <p><strong>Expertise:</strong> ${speaker.expertise}</p>
+                            <p><strong>Price:</strong> ₹${speaker.price}</p>
+                            <button>Book Now</button>
+                        `;
+                        speakersList.appendChild(speakerItem);
+                    });
+                } else {
+                    alert('No speakers available at the moment.');
+                }
+            } catch (error) {
+                console.error('Error loading user or speakers data:', error);
+                alert('An error occurred. Please try again.');
+                window.location.href = '/login'; // Redirect to login page in case of error
+            }
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('user');  // Clear user data
+                window.location.href = '/login';  // Redirect to login page
+            });
+        });
+    </script>
+</body>
+</html>

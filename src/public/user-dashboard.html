@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">User Dashboard</h1>
+            <div>
+                <span id="userEmail" class="mr-4 text-gray-600"></span>
+                <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+            </div>
+        </header>
+
+        <section id="speakersSection" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Speaker profiles will be dynamically loaded here -->
+        </section>
+
+        <!-- Modal for Booking Time Slot -->
+        <div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+            <div class="bg-white p-8 rounded-lg w-96">
+                <h2 id="modalSpeakerName" class="text-2xl font-bold mb-4"></h2>
+                
+                <!-- Dropdown for Time Slots -->
+                <div class="mb-4">
+                    <label for="timeSlotSelect" class="block text-gray-700 font-bold mb-2">Select Time Slot</label>
+                    <select id="timeSlotSelect" class="w-full p-2 border rounded">
+                        <option value="">Choose a time slot</option>
+                        <option value="9:00 AM">9:00 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
+                        <option value="3:00 PM">3:00 PM</option>
+                        <option value="4:00 PM">4:00 PM</option>
+                    </select>
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button id="cancelBookingBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                    <button id="confirmBookingBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Book Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userEmail = localStorage.getItem('userEmail');
+            const speakersSection = document.getElementById('speakersSection');
+            const bookingModal = document.getElementById('bookingModal');
+            const modalSpeakerName = document.getElementById('modalSpeakerName');
+            const timeSlotSelect = document.getElementById('timeSlotSelect');
+            const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+            const cancelBookingBtn = document.getElementById('cancelBookingBtn');
+            const userEmailSpan = document.getElementById('userEmail');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('userEmail');
+                window.location.href = '/login.html';
+            });
+
+            // Set user email
+            userEmailSpan.textContent = userEmail || 'User';
+
+            if (!userEmail) {
+                alert('No user email found. Redirecting to login.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                // Fetch all speaker profiles
+                const response = await fetch('/api/get-all-speakers', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load speakers');
+                }
+
+                // Populate speakers section
+                speakersSection.innerHTML = data.speakers.map(speaker => `
+                    <div class="bg-white rounded-lg shadow-md p-6 transform transition hover:scale-105">
+                        <h3 class="text-xl font-semibold mb-2">${speaker.name}</h3>
+                        <p class="text-gray-600 mb-2">Expertise: ${speaker.expertise}</p>
+                        <p class="text-green-600 font-bold mb-4">₹${speaker.price} per session</p>
+                        <button class="book-speaker-btn w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" 
+                                data-speaker-id="${speaker.id}" 
+                                data-speaker-name="${speaker.name}">
+                            Book Session
+                        </button>
+                    </div>
+                `).join('');
+
+                // Add event listeners to book buttons
+                document.querySelectorAll('.book-speaker-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const speakerId = e.target.dataset.speakerId;
+                        const speakerName = e.target.dataset.speakerName;
+                        openBookingModal(speakerId, speakerName);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading speakers:', error);
+                speakersSection.innerHTML = `
+                    <div class="col-span-full text-center text-red-500">
+                        Unable to load speakers. ${error.message}
+                    </div>
+                `;
+            }
+
+            // Open Booking Modal Function
+            function openBookingModal(speakerId, speakerName) {
+                modalSpeakerName.textContent = speakerName;
+                
+                // Reset time slot dropdown
+                timeSlotSelect.selectedIndex = 0;
+
+                // Show modal (change display style)
+                bookingModal.classList.remove('hidden');
+                bookingModal.classList.add('flex');
+            }
+
+            // Close modal
+            cancelBookingBtn.addEventListener('click', () => {
+                bookingModal.classList.remove('flex');
+                bookingModal.classList.add('hidden');
+            });
+
+            // Confirm booking
+            confirmBookingBtn.addEventListener('click', async () => {
+                const selectedTime = timeSlotSelect.value;
+                if (!selectedTime) {
+                    alert('Please select a time slot');
+                    return;
+                }
+
+                const speakerName = modalSpeakerName.textContent;
+
+                try {
+                    const response = await fetch('/api/book-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userEmail: userEmail,
+                            speakerName: speakerName,
+                            time: selectedTime
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Session booked successfully!');
+                        bookingModal.classList.remove('flex');
+                        bookingModal.classList.add('hidden');
+                    } else {
+                        alert(result.message || 'Booking failed');
+                    }
+                } catch (error) {
+                    console.error('Booking error:', error);
+                    alert('An error occurred while booking the session');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaker Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Speaker Dashboard!</h1>
+        <button id="logoutBtn">Logout</button>
+    </header>
+    
+    <main>
+        <section id="profileFormSection">
+            <h2>Create Your Speaker Profile</h2>
+            <form id="profileForm">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+                
+                <label for="expertise">Expertise</label>
+                <input type="text" id="expertise" required>
+                
+                <label for="price">Price per Session (₹)</label>
+                <input type="number" id="price" required>
+                
+                <button type="submit">Save Profile</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 ReachOut Platform</p>
+    </footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const userEmail = localStorage.getItem('userEmail');
+    console.log('Stored Email:', userEmail);
+        
+            if (!userEmail) {
+                alert('No user email found. Redirecting to login.');
+                window.location.href = '/login.html';
+                return;
+            }
+        
+            // Check if profile already exists
+            try {
+                const response = await fetch('/api/get-speaker-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+        
+                const data = await response.json();
+                console.log('Response Data:', data);
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to load profile');
+        }
+        
+                if (data.success) {
+                    // Profile exists, redirect to dashboard
+                    window.location.href = '/speaker-dashboard.html';
+                    return;
+                }
+            } catch (error) {
+                // If request fails, assume no profile exists and continue
+                console.log('No existing profile found');
+            }
+        
+            // Rest of your existing speaker.html script remains the same
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const userEmail = localStorage.getItem('userEmail');
+    console.log('Attempting to save profile for email:', userEmail);
+
+    const name = document.getElementById('name').value.trim();
+    const expertise = document.getElementById('expertise').value.trim();
+    const price = document.getElementById('price').value.trim();
+
+    try {
+        const response = await fetch('/api/save-speaker-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: userEmail,
+                name,
+                expertise,
+                price,
+            }),
+        });
+
+        const data = await response.json();
+        console.log('Server response:', data);
+
+        if (!response.ok) {
+            console.error('Server error details:', data);
+            alert(data.message || 'Failed to save profile');
+            return;
+        }
+
+        if (data.success) {
+    // Use the redirectTo from the backend response
+    window.location.href = data.redirectTo || '/speaker-dashboard.html';
+        } else {
+            alert(data.message || 'Failed to save profile.');
+        }
+    } catch (error) {
+        console.error('Detailed client-side error:', error);
+        alert('An error occurred while saving your profile.');
+    }
+            });
+        });
+        </script>
+</body>
+</html>

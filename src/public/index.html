@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Reachout - Connect and Communicate</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('/api/placeholder/1920/1080');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="relative">
+    <!-- Background Overlay -->
+    <div class="overlay"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full bg-white bg-opacity-10 backdrop-blur-md p-4 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-2xl font-bold">Reachout</div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="relative z-20 flex items-center justify-center h-screen">
+        <div class="text-center text-white px-4">
+            <h1 class="text-5xl font-bold mb-6">Bridging Knowledge, Transforming Healthcare</h1>
+            <p class="text-xl mb-10">Connecting medical experts with patients seamlessly</p>
+            <div class="space-x-4">
+                <button id="signupBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition duration-300">
+                    Sign Up
+                </button>
+                <button id="loginBtn" class="bg-white text-blue-600 hover:bg-gray-100 font-bold py-3 px-6 rounded-full transition duration-300">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Event listeners for Signup and Login buttons
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            window.location.href = "/signup";
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            window.location.href = "/login";
+        });
+    </script>
+</body>
+</html>

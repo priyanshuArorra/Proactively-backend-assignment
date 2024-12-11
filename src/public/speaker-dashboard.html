@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaker Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Modern, Clean Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2c3e50;
+            --background-light: #f7f9fc;
+            --text-color: #333;
+            --border-radius: 12px;
+        }
+    
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-light);
+            color: var(--text-color);
+        }
+    
+        /* Container Layout */
+        .dashboard-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+    
+        /* Sidebar Profile Section */
+        .sidebar-profile {
+            width: 300px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+            text-align: center;
+            position: sticky;
+            top: 20px;
+        }
+    
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            margin-bottom: 15px;
+        }
+    
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+    
+        .profile-expertise {
+            color: var(--primary-color);
+            background-color: #e6f2ff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+        }
+    
+        /* Booking Sections */
+        .booking-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+            padding: 25px;
+        }
+    
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+    
+        .section-header h2 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
+    
+        /* Modern Table Design */
+        .bookings-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+    
+        .bookings-table th {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: #6c757d;
+            padding: 10px 15px;
+            text-align: left;
+            background-color: #f8f9fa;
+        }
+    
+        .bookings-table td {
+            background-color: #f8f9fa;
+            padding: 15px;
+            font-weight: 500;
+        }
+    
+        .bookings-table tr {
+            transition: transform 0.2s ease;
+        }
+    
+        .bookings-table tr:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+    
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    
+        /* Action Buttons */
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        .action-btn:hover {
+            background-color: #3a7bd5;
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+    
+            .sidebar-profile {
+                width: 100%;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Speaker Dashboard</h1>
+        <button id="logoutBtn">Logout</button>
+    </header>
+    
+    <main>
+        <section id="profileSection">
+            <h2>Your Profile</h2>
+            <div id="profileDetails">
+                <!-- Profile details will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <section id="upcomingBookingsSection" class="bookings-section">
+            <h2>Upcoming Bookings</h2>
+            <table id="upcomingBookingsTable" class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="upcomingBookingsBody">
+                    <!-- Upcoming bookings will be dynamically loaded here -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="previousBookingsSection" class="bookings-section">
+            <h2>Previous Bookings</h2>
+            <table id="previousBookingsTable" class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="previousBookingsBody">
+                    <!-- Previous bookings will be dynamically loaded here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 ReachOut Platform</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userEmail = localStorage.getItem('userEmail');
+        
+            if (!userEmail) {
+                alert('No user email found. Redirecting to login.');
+                window.location.href = '/login.html';
+                return;
+            }
+        
+            try {
+                // Fetch speaker profile
+                const profileResponse = await fetch('/api/get-speaker-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+        
+                // Parse the profile response
+                const profileData = await profileResponse.json();
+        
+                // Check if the profile request was successful
+                if (!profileResponse.ok || !profileData.success) {
+                    throw new Error(profileData.message || 'Failed to load profile');
+                }
+        
+                // Populate profile details
+                const profileDetails = document.getElementById('profileDetails');
+                profileDetails.innerHTML = `
+                    <p><strong>Name:</strong> ${profileData.profile.name}</p>
+                    <p><strong>Expertise:</strong> ${profileData.profile.expertise}</p>
+                    <p><strong>Price per Session:</strong> ₹${profileData.profile.price}</p>
+                `;
+        
+                // Fetch bookings
+                const bookingsResponse = await fetch('/api/get-speaker-bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+        
+                // Parse the bookings response
+                const bookingsData = await bookingsResponse.json();
+        
+                // Check if the bookings request was successful
+                if (!bookingsResponse.ok || !bookingsData.success) {
+                    throw new Error(bookingsData.message || 'Failed to load bookings');
+                }
+        
+                // Get current date
+                const currentDate = new Date();
+        
+                // Populate upcoming bookings
+                const upcomingBookingsBody = document.getElementById('upcomingBookingsBody');
+                const upcomingBookings = bookingsData.bookings.filter(booking => 
+                    new Date(booking.date) >= currentDate
+                );
+        
+                if (upcomingBookings.length === 0) {
+                    upcomingBookingsBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center">No upcoming bookings</td>
+                        </tr>
+                    `;
+                } else {
+                    upcomingBookingsBody.innerHTML = upcomingBookings.map(booking => `
+                        <tr>
+                            <td>${new Date(booking.date).toLocaleDateString()}</td>
+                            <td>${booking.time}</td>
+                            <td>${booking.clientName}</td>
+                            <td class="status-${booking.status.toLowerCase()}">${booking.status}</td>
+                            <td>
+                                <button onclick="handleBookingAction('${booking.booking_id}')">
+                                    Manage
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+        
+                // Populate previous bookings
+                const previousBookingsBody = document.getElementById('previousBookingsBody');
+                const previousBookings = bookingsData.bookings.filter(booking => 
+                    new Date(booking.date) < currentDate
+                );
+        
+                if (previousBookings.length === 0) {
+                    previousBookingsBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center">No previous bookings</td>
+                        </tr>
+                    `;
+                } else {
+                    previousBookingsBody.innerHTML = previousBookings.map(booking => `
+                        <tr>
+                            <td>${new Date(booking.date).toLocaleDateString()}</td>
+                            <td>${booking.time}</td>
+                            <td>${booking.clientName}</td>
+                            <td class="status-${booking.status.toLowerCase()}">${booking.status}</td>
+                        </tr>
+                    `).join('');
+                }
+        
+                // Logout functionality
+                const logoutBtn = document.getElementById('logoutBtn');
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('userEmail');
+                    window.location.href = '/login.html';
+                });
+        
+            } catch (error) {
+                console.error('Detailed error loading data:', error);
+                alert(`Error loading dashboard: ${error.message}`);
+            }
+        });
+
+        // Placeholder function for booking actions
+        function handleBookingAction(bookingId) {
+            // Implement booking management logic
+            alert(`Managing booking with ID: ${bookingId}`);
+            // You can expand this to add more functionality like:
+            // - Confirming the booking
+            // - Cancelling the booking
+            // - Adding notes
+        }
+    </script>
+</body>
+</html>
